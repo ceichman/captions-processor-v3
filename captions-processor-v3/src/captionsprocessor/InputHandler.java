@@ -16,8 +16,8 @@ public class InputHandler {
 	
 	private static final String WORKING_DIR = System.getProperty("user.dir");
 	private static final Path WORKING_PATH = Path.of(WORKING_DIR);
-	private static final Path CAPTION_FOLDER_PATH = Paths.get(WORKING_PATH.toString() + "\\src\\processor\\captionfiles");
-	private static final File CAPTION_FOLDER_FILE = new File(WORKING_PATH.toString() + "\\src\\processor\\captionfiles");
+	private static final Path CAPTION_FOLDER_PATH = Paths.get(WORKING_PATH.toString() + "\\src\\captionfiles");
+	private static final File CAPTION_FOLDER_FILE = new File(WORKING_PATH.toString() + "\\src\\captionfiles");
 	private static final Charset CHARSET = Charset.forName("US-ASCII");
 	
 	/**
