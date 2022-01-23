@@ -1,0 +1,28 @@
+1
+00:00:00,873 --> 00:00:03,520
+this is content.  the previous break had a double  space in it.      five spaces before this. 
+
+2
+00:00:00,873 --> 00:00:03,520
+more  content here, of the  captions.  spaces space   
+this is a multiple line caption, with some extra spaces. 
+
+3
+00:00:00,873 --> 00:00:03,520
+ conteont? 
+
+4
+00:00:00,873 --> 00:00:03,520
+notrim. peer to peer?  
+
+5
+00:00:00,873 --> 00:00:03,520
+[no speech detected]
+
+6
+00:00:00,873 --> 00:00:03,520
+got That Unnecessary capitalizations,
+
+7
+00:00:00,873 --> 00:00:03,520
+of course we do. 
