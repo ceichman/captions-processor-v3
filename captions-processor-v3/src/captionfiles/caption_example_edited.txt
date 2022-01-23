@@ -2,7 +2,8 @@
 
 1
 00:00:00,873 --> 00:00:03,520
-this is content.  the previous break had a double  space in it.      five spaces before this. 
+this is Is content content
+  the previous break had a double  space in it.      five spaces before this. 
 
 2
 00:00:00,873 --> 00:00:03,520
@@ -15,7 +16,8 @@ this is a multiple line caption, with some extra spaces.
 
 4
 00:00:00,873 --> 00:00:03,520
-notrim. peer to peer?  
+notrim. peer TO peer?  
+captions caption.  caption caption.  
 
 5
 00:00:00,873 --> 00:00:03,520

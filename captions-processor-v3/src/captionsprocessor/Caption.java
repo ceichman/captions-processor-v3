@@ -56,7 +56,7 @@ public class Caption {
 		return words;
 	}
 	
-	public List<Character> toCharacters() {
+	public List<Character> toChars() {
 		char[] temp = this.content.toCharArray();  //store the chars in an array temporarily
 		List<Character> chars = new LinkedList<>();
 		for (char c : temp) {    //copy the array into a list of chars

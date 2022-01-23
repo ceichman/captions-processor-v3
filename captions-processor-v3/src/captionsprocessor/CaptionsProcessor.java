@@ -43,7 +43,7 @@ public class CaptionsProcessor {
 	 */
 	public static List<Caption> listToCaptions(List<String> lines) {
 		List<Caption> captions = new LinkedList<>();
-		
+
 		for (int currentLine = 0; currentLine < lines.size(); currentLine++) {  //for all the lines in the document
 			String lineContent = lines.get(currentLine);
 			if (currentLine + 1 < lines.size()) {  //if the next line exists
@@ -85,6 +85,30 @@ public class CaptionsProcessor {
 			captionContent = captionContent.substring(0, captionContent.length() - CAPTION_BREAK_DELINEATOR.length()); //cut off the trailing caption break delineator
 		}
 		return new Caption(captionNumber, captionTiming, captionContent);
+	}
+
+	/**
+	 * Rebuilds formatted caption content based on a list of space-delineated Strings.
+	 * See Caption.toWords().
+	 * @param words The List of String objects, each representing a new word in a caption's content
+	 * @return The formatted content String
+	 */
+	public static String wordsToContent(List<String> words) {
+		String content = "";          //rebuild the string's content from the edited list of words
+		for (String word : words) {
+			content += word + " ";
+		}
+		content = content.trim();  //remove the trailing space
+		return content;
+	}
+
+	public static String charsToContent(List<Character> chars) {
+		String content = "";          //rebuild the string's content from the edited list of words
+		for (Character c : chars) {
+			content += c;
+		}
+		content = content.trim();  //remove any trailing space
+		return content;
 	}
 
 	/**
@@ -137,8 +161,9 @@ public class CaptionsProcessor {
 	 * @param captions The list of captions to be used
 	 * @param search The String to be replaced
 	 * @param replace The String with which to replace
-	 * @return The number of successful replacements performed
+	 * @return The number of successful replacements performed (inaccurate; also counts punctuation clean-ups)
 	 */
+	//TODO: see above. make them two separate unchanged/changed loops
 	private static int searchAndReplace(List<Caption> captions, String search, String replace) {
 		if (REPLACE_CONSOLE_OUTPUT) System.out.print("Replacing \"" + search + "\" with \"" + replace + "\"... ");
 		int replacementsPerformed = 0;
@@ -152,9 +177,9 @@ public class CaptionsProcessor {
 				unreplaced = replaced;
 				replaced = replaced.replaceFirst(target, replace); //try it again
 				replacementsPerformed++;    //and note that something got replaced
-				
+
 				caption.setContent(replaced);  //get rid of trailing commas and spaces
-				List<Character> chars = caption.toCharacters();
+				List<Character> chars = caption.toChars();
 				for (int i = 0; i < chars.size() - 1; i++) {
 					char thisChar = chars.get(i);
 					char nextChar = chars.get(i + 1);  //if there is an extra space/comma where there shouldn't be, remove it
@@ -162,10 +187,7 @@ public class CaptionsProcessor {
 						chars.remove(i);
 					}
 				}
-				replaced = "";      //rebuild the content
-				for (Character c : chars) {
-					replaced += c;
-				}
+				replaced = charsToContent(chars);
 			}
 
 			caption.setContent(replaced);
@@ -173,6 +195,53 @@ public class CaptionsProcessor {
 
 		if (REPLACE_CONSOLE_OUTPUT) System.out.println(replacementsPerformed + " replacements performed");
 		return replacementsPerformed;
+	}
+
+	/**
+	 * Removes duplicate words, case- and plural-insensitively, from the content of a List of Captions.
+	 * @param captions The List of Captions to be analyzed
+	 * @return The number of duplicate words removed
+	 */
+	//FIXME: not replacing words at all
+	private static int removeDuplicateWords(List<Caption> captions) {
+		if (ENABLE_CONSOLE_OUTPUT) System.out.print("Removing duplicate words... ");
+		int duplicatesRemoved = 0;
+
+		for (Caption caption : captions) {
+			List<String> words = caption.toWords();
+			for (int i = 0; i < words.size() - 1; i++) {
+				String thisWord = words.get(i);
+				String nextWord = words.get(i + 1);
+				if (nextWord.length() > 2) {
+					String lastChar = nextWord.substring(nextWord.length() - 1); //contains only the last character of the word
+					String lastTwoChars = nextWord.substring(nextWord.length() - 2); //contains last two chars
+					boolean endsWithNewline = lastTwoChars.equals("\n");
+					if (endsWithNewline) {
+						nextWord = nextWord.substring(0, nextWord.length() - 3); //chop off the last two
+					}
+					boolean endsWithPunctuation = lastChar.equals(".") || lastChar.equals(",") || lastChar.equals("?");
+					if (endsWithPunctuation) {
+						nextWord = nextWord.substring(0, nextWord.length() - 2); //chop off the last char
+					}
+					//				String thisWordPlural = thisWord + "s";
+					//				String thisWordPeriod = thisWord + ".";
+					//				String thisWordQuestion = thisWord + "?";
+					//				String thisWordComma = thisWord + "\n";
+					//				String nextWord = words.get(i + 1);
+					//				boolean sameWord = (thisWord.equalsIgnoreCase(nextWord) || thisWordPlural.equalsIgnoreCase(nextWord) || thisWordPeriod.equalsIgnoreCase(nextWord) || thisWordQuestion.equalsIgnoreCase(nextWord) || thisWordComma.equalsIgnoreCase(nextWord));
+					boolean sameWord = thisWord.equalsIgnoreCase(nextWord);
+					if (sameWord && (!thisWord.equalsIgnoreCase("that")) && (!thisWord.equalsIgnoreCase("had"))) {
+						words.remove(i);  //if this word (or its plural) equals the next word, and the word isn't "that" or "had", remove it
+						duplicatesRemoved++;
+					}
+				}
+			}
+			String newContent = wordsToContent(words);
+			caption.setContent(newContent);
+		}
+
+		if (ENABLE_CONSOLE_OUTPUT) System.out.println(duplicatesRemoved + " duplicates removed");
+		return duplicatesRemoved;
 	}
 
 	/**
@@ -185,7 +254,7 @@ public class CaptionsProcessor {
 		int spacesRemoved = 0;
 
 		for (Caption caption : captions) {
-			List<Character> chars = caption.toCharacters();
+			List<Character> chars = caption.toChars();
 			List<Integer> queuedForRemoval = new LinkedList<Integer>();   
 			for (int i = 0; i < chars.size() - 1; i++) {
 				if (chars.get(i) == ' ' && chars.get(i + 1) == ' ') { //if this and the next character are spaces
@@ -196,11 +265,8 @@ public class CaptionsProcessor {
 			for (int i = queuedForRemoval.size() - 1; i >= 0; i--) {  //remove all queued indexes, highest first
 				chars.remove((int) queuedForRemoval.get(i));
 			}
-			String newCaptionContent = "";   //write new string with remaining chars
-			for (char c : chars) {
-				newCaptionContent = newCaptionContent + c;
-			}
-			caption.setContent(newCaptionContent);  //update caption contents
+			String newContent = charsToContent(chars); //write new content string
+			caption.setContent(newContent);  //update caption contents
 		}
 
 		if (ENABLE_CONSOLE_OUTPUT) System.out.println(spacesRemoved + " extra spaces removed");
@@ -247,11 +313,7 @@ public class CaptionsProcessor {
 					decapitalizationsPerformed++;
 				}
 			}
-			String newContent = "";          //rebuild the string's content from the edited list of words
-			for (String word : newWords) {
-				newContent = newContent + word + " ";
-			}
-			newContent = newContent.trim();  //remove the trailing space
+			String newContent = wordsToContent(newWords);          //rebuild the string's content from the edited list of words
 			caption.setContent(newContent);   //update the caption's content
 		}
 
@@ -271,7 +333,7 @@ public class CaptionsProcessor {
 		boolean nextShouldCapitalize = false;
 
 		for (Caption caption : captions) {
-			List<Character> chars = caption.toCharacters();  //chars stores caption content as individual characters
+			List<Character> chars = caption.toChars();  //chars stores caption content as individual characters
 			if ((chars.size() != 0 && nextShouldCapitalize) || firstCaption) {  //if we're sure it's supposed to be a new sentence, or it's the first caption of the file:
 				char upper = Character.toUpperCase(chars.get(FIRST_CHARACTER));  //capitalize the first character
 				chars.remove(FIRST_CHARACTER);
@@ -288,19 +350,16 @@ public class CaptionsProcessor {
 					}
 				}
 			}
-			String newCaptionContent = "";   //write new string with updated chars
-			for (char c : chars) {
-				newCaptionContent = newCaptionContent + c;
-			}
-			if (newCaptionContent.length() > 0) {
-				String lastCharacter = newCaptionContent.substring(newCaptionContent.length() - 1);
+			String newContent = charsToContent(chars);
+			if (newContent.length() > 0) {
+				String lastCharacter = newContent.substring(newContent.length() - 1);
 				if (lastCharacter.equals(".") || lastCharacter.equals("?")) {
 					nextShouldCapitalize = true;
 				}
 				else nextShouldCapitalize = false;
 			}
 
-			caption.setContent(newCaptionContent);  //update caption contents
+			caption.setContent(newContent);  //update caption contents
 			firstCaption = false;
 		}
 
@@ -349,6 +408,7 @@ public class CaptionsProcessor {
 		};
 		captions = removeEmptyCaptions(captions);
 		multipleReplace(captions, replacements);
+		removeDuplicateWords(captions);
 		removeMultipleSpaces(captions);
 		trimTrailingSpaces(captions);
 		decapitalize(captions);
@@ -364,7 +424,8 @@ public class CaptionsProcessor {
 		}
 		else if (ENABLE_CONSOLE_OUTPUT) System.out.println("No caption file generated");
 		//complete
-		System.out.print("\nDone!");
+		System.out.println("\nDone!");
+
 	}
 
 }
