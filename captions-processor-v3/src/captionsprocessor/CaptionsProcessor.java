@@ -61,7 +61,7 @@ public class CaptionsProcessor {
 	 * @param lineNumber First line of caption data, i.e. assigned caption number
 	 * @return Caption object
 	 */
-	private static Caption parseCaption(List<String> lines, int lineNumber) {
+	public static Caption parseCaption(List<String> lines, int lineNumber) {
 		String captionNumberString = lines.get(lineNumber);  //the caption number is on the first line
 		captionNumberString = captionNumberString.replaceAll("[^a-zA-Z0-9]", "");  //get rid of all non-alphanumeric characters in caption numbers (encoding mismatches) before parsing as int
 		int captionNumber = Integer.parseInt(captionNumberString);   //store it as an integer
@@ -148,11 +148,26 @@ public class CaptionsProcessor {
 			String originalContent = caption.getContent();
 			String unreplaced = originalContent;
 			String replaced = originalContent.replaceFirst(target, replace);
-			while (unreplaced != replaced) {  //if something got replaced
+			while (!unreplaced.equals(replaced)) {  //if something got replaced
 				unreplaced = replaced;
 				replaced = replaced.replaceFirst(target, replace); //try it again
 				replacementsPerformed++;    //and note that something got replaced
+				
+				caption.setContent(replaced);  //get rid of trailing commas and spaces
+				List<Character> chars = caption.toCharacters();
+				for (int i = 0; i < chars.size() - 1; i++) {
+					char thisChar = chars.get(i);
+					char nextChar = chars.get(i + 1);  //if there is an extra space/comma where there shouldn't be, remove it
+					if ((thisChar == ' ' || thisChar == ',') && ((nextChar == '.') || (nextChar == '?'))) {
+						chars.remove(i);
+					}
+				}
+				replaced = "";      //rebuild the content
+				for (Character c : chars) {
+					replaced += c;
+				}
 			}
+
 			caption.setContent(replaced);
 		}
 
@@ -316,13 +331,13 @@ public class CaptionsProcessor {
 		List<Caption> captions = listToCaptions(lines);
 		//edits performed
 		String[][] replacements = {
+				{"you know", ""},
 				{"peer to peer", "peer-to-peer"},
 				{"client server", "client-server"},
 				{"actually", ""},
 				{"basically", ""},
 				{"really", ""},
 				{"i mean", ""},
-				{"you know", ""},
 				{"and and", "and"},
 				{"then then", "then"},
 				{"so so ", "so "},
