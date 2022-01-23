@@ -90,7 +90,7 @@ public class CaptionsProcessor {
 	/**
 	 * Rebuilds formatted caption content based on a list of space-delineated Strings.
 	 * See Caption.toWords().
-	 * @param words The List of String objects, each representing a new word in a caption's content
+	 * @param words The List of Strings, each representing a word in a caption's content
 	 * @return The formatted content String
 	 */
 	public static String wordsToContent(List<String> words) {
@@ -102,6 +102,12 @@ public class CaptionsProcessor {
 		return content;
 	}
 
+	/**
+	 * Rebuilds formatted caption content based on a list of Characters.
+	 * See Caption.toChars().
+	 * @param chars The List of Characters to be concatenated into a content String
+	 * @return The resulting content String
+	 */
 	public static String charsToContent(List<Character> chars) {
 		String content = "";          //rebuild the string's content from the edited list of words
 		for (Character c : chars) {
