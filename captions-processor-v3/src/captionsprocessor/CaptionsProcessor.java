@@ -44,26 +44,15 @@ public class CaptionsProcessor {
 	public static List<Caption> listToCaptions(List<String> lines) {
 		List<Caption> captions = new LinkedList<>();
 		
-		for (int currentLine = 0; currentLine < lines.size(); currentLine++) {
+		for (int currentLine = 0; currentLine < lines.size(); currentLine++) {  //for all the lines in the document
 			String lineContent = lines.get(currentLine);
 			if (currentLine + 1 < lines.size()) {  //if the next line exists
-				String nextLineContent = lines.get(currentLine + 1);   //and the first character of the next line is also a digit (below) 
-				if (Caption.isInteger(lineContent) && Caption.isInteger(nextLineContent.substring(0, 0))) {
+				String nextLineContent = lines.get(currentLine + 1);   //if this AND the first character of the next line are both digits (i.e. next is a timing line)
+				if (!lineContent.equals("") && Caption.isInteger(lineContent) && Caption.isInteger(nextLineContent.substring(0, 0))) {
 					captions.add(parseCaption(lines, currentLine));
 				}
 			}
 		}
-		
-		//manually handle the first caption
-//		if (!lines.get(0).equals("")) {
-//			captions.add(parseCaption(lines, 0));
-//		}
-//		for (int lineNo = 1; lineNo < lines.size(); lineNo++) {   //start on the first line, avoiding double counting of first caption due to blank first line
-//			if (lines.get(lineNo).equals("") && lineNo + 1 < lines.size()) {   //if the line is empty and it's not the last line of the document:
-//				captions.add(parseCaption(lines, lineNo + 1));
-//			}
-//		}
-		
 		return captions;
 	}
 
@@ -97,9 +86,6 @@ public class CaptionsProcessor {
 		}
 		return new Caption(captionNumber, captionTiming, captionContent);
 	}
-	//FIXME: parseCaption doesn't like empty caption content or leading/trailing carriage returns in the document; maybe fix this in linesToCaption method
-	//maybe do this using a line ticker? keeps track of current line
-	//either way it needs to be redesigned
 
 	/**
 	 * Removes Captions from a corresponding List that have empty or placeholder content.

@@ -1,3 +1,5 @@
+
+
 1
 00:00:00,873 --> 00:00:03,520
 this is content.  the previous break had a double  space in it.      five spaces before this. 
@@ -26,3 +28,5 @@ got That Unnecessary capitalizations,
 7
 00:00:00,873 --> 00:00:03,520
 of course we do. 
+
+
